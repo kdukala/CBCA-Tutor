@@ -134,7 +134,12 @@ if prompt := st.chat_input("Zadaj pytanie..."):
     with st.chat_message("assistant"):
         try:
             response = model.generate_content(prompt)
-            st.markdown(response.text)
-            st.session_state.messages.append({"role": "assistant", "content": response.text})
+            if response.candidates:
+                st.markdown(response.text)
+                st.session_state.messages.append({"role": "assistant", "content": response.text})
+            else:
+                st.warning("Google zablokowało odpowiedź ze względów bezpieczeństwa. Spróbuj zadać pytanie inaczej.")
+                # Wyświetl powód blokady dla Ciebie (opcjonalnie)
+                st.write(response.prompt_feedback) 
         except Exception as e:
             st.error(f"Błąd generowania: {e}")
