@@ -1,6 +1,7 @@
 
 import streamlit as st
 import google.generativeai as genai
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
 # TWOJE INSTRUKCJE Z GEMA
 SYSTEM_PROMPT = """Rola:
@@ -107,8 +108,16 @@ else:
     st.caption(f"Używany model: {model_name}")
 
 # 3. Inicjalizacja modelu
-model = genai.GenerativeModel(model_name=model_name, system_instruction=SYSTEM_PROMPT)
-
+model = genai.GenerativeModel(
+    model_name=model_name, 
+    system_instruction=SYSTEM_PROMPT,
+    safety_settings={
+        HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+        HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+        HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+        HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+    }
+)
 # 4. Reszta czatu (bez zmian)
 if "messages" not in st.session_state:
     st.session_state.messages = []
