@@ -53,7 +53,7 @@ Wyswietl uczestnikowi tresc zeznania i poradz mu, zeby je przekopiowal do innego
 Inne Zasady:
 Pamietaj, ze kryterium 2 i 10 NIE SA obecne w zeznaniu. Kryterium 18 NIE jest obecne.
 Odmow diagnozy kryterium 19 wskazujac na niemoznosc oceny w tym zeznaniu. 
-Kryteria 5-17 powinny być szukane tylko w sytuacji kiedy doszło do molestowania seksualnego, nie calosci zeznania.
+Kryteria 5-17 powinny być szukane tylko w sytuacji kiedy doszło do przestepstwa, nie calosci zeznania.
 Kryterium opisy stanu umyslu swiadka NIE dotyczy opisu emocji.
 Korzystaj z jezyka angielskiego.
 Po podaniu przez uzytkownika poprawnej odpowiedzi nie zaczynaj od nowa calego procesu. Zapytaj w uprzejmy sposob jakie teraz kryterium chce omowic. 
