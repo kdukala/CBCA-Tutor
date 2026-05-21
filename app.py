@@ -70,17 +70,47 @@ Witness Karolina K. testifies:
 	I don't know how I got home, my boyfriend was already waiting for me. I remember throwing myself into his arms. I remember bathing for a long time, I felt terrible. I was in shock the whole time, I was very ashamed and didn't know what to do. First I talked to my mother, I didn't tell my father everything until before the trial, he thought the masseur had only exposed himself to me. The next day I was supposed to have another treatment, but I said I wouldn't go, and we had to report it somehow, otherwise not showing up for the massage means losing funding for my treatment. My mother and I decided to get the phone number for the head of the center, my mother did everything, because I couldn't do anything, I wasn't able to. My mother contacted the head, we arranged a visit for the next day. Then I told everything to some two ladies, then the President, I think Aleksandra, but I'm not sure, also appeared, and I told everything again. I asked if I could resign from the massages and they told me I could. I was told that they would want to fire the X , because about two years earlier there had been complaints from female patients about him. At that time they didn't want to report it to the police, but now the ladies said that it had to be done. I cried the whole time, I didn't want to go to the police, I didn't want to do anything. I felt bad, I felt very guilty, especially since I was wearing that underwear. Then the next day we got a call that the X had come to the center with a lawyer and was very unpleasant. I was terrified, I just wanted him to leave his job, I didn't want to report the matter to the police, but the ladies from the center convinced me that it was necessary."
 """
 
-st.set_page_config(page_title="Twój Tutor AI", page_icon="🎓")
-st.title("🎓 Wirtualny Tutor")
+st.set_page_config(page_title="E-Tutor AI", page_icon="🎓")
+st.title("🎓 Twój Wirtualny Tutor")
 
-# Pobieranie klucza z bezpiecznych ustawień
+# 1. Pobieranie klucza
 if "api_key" not in st.secrets:
-    st.error("Błąd: Skonfiguruj klucz API w ustawieniach Streamlit!")
+    st.error("Błąd: Skonfiguruj 'api_key' w Secrets!")
     st.stop()
 
 genai.configure(api_key=st.secrets["api_key"])
-model = genai.GenerativeModel(model_name="gemini-1.5-flash", system_instruction=SYSTEM_PROMPT)
 
+# 2. AUTOMATYCZNE WYKRYWANIE DOSTĘPNEGO MODELU
+@st.cache_resource
+def get_working_model():
+    try:
+        # Pobieramy listę wszystkich modeli dostępnych dla Twojego klucza
+        available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+        
+        # Szukamy najlepiej pasującego (Flash 1.5 lub 1.0)
+        for target in ["models/gemini-1.5-flash", "models/gemini-1.0-pro", "models/gemini-pro"]:
+            if target in available_models:
+                return target
+        
+        # Jeśli nie ma powyższych, bierzemy pierwszy lepszy z listy
+        return available_models[0] if available_models else None
+    except Exception as e:
+        st.error(f"Nie udało się pobrać listy modeli: {e}")
+        return None
+
+model_name = get_working_model()
+
+if not model_name:
+    st.error("Twój klucz API nie ma dostępu do żadnego modelu Gemini. Sprawdź Google AI Studio.")
+    st.stop()
+else:
+    # Wyświetlamy informację tylko dla Ciebie (możesz usunąć tę linię później)
+    st.caption(f"Używany model: {model_name}")
+
+# 3. Inicjalizacja modelu
+model = genai.GenerativeModel(model_name=model_name, system_instruction=SYSTEM_PROMPT)
+
+# 4. Reszta czatu (bez zmian)
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -92,11 +122,11 @@ if prompt := st.chat_input("Zadaj pytanie..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
+
     with st.chat_message("assistant"):
-        response = model.generate_content(prompt)
-        st.markdown(response.text)
-        st.session_state.messages.append({"role": "assistant", "content": response.text})
-
-
-
-
+        try:
+            response = model.generate_content(prompt)
+            st.markdown(response.text)
+            st.session_state.messages.append({"role": "assistant", "content": response.text})
+        except Exception as e:
+            st.error(f"Błąd generowania: {e}")
